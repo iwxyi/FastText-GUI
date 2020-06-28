@@ -40,3 +40,12 @@ void MainWindow::on_pushButton_3_clicked()
     });
     ft->predictOne("text.txt", "model");
 }
+
+void MainWindow::on_pushButton_4_clicked()
+{
+    FastTextUtil* ft = new FastTextUtil(this);
+    connect(ft, &FastTextUtil::signalQuantizeFinished, this, [=] {
+        qDebug() << "量化结束";
+    });
+    ft->quantize("model");
+}

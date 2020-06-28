@@ -71,15 +71,13 @@ void FastTextUtil::predictOne(QString txt, QString model, int k)
 
 /**
  * @brief 量化模型，减少体积
+ * model.bin => model.ftz
  * @param model 模型文件名（输入输出同名）
  */
 void FastTextUtil::quantize(QString model)
 {
-    if (!model.endsWith(".bin"))
-        model += ".bin";
     QtConcurrent::run([=]{
-        std::vector<std::vector<std::pair<real, std::string>>> results =
-                FastTextIf::predict(std::vector<std::string>{
+        FastTextIf::quantize(std::vector<std::string>{
                                 "fasttext", "quantize", "-output", model.toStdString(), "-input", "x"
                             });
         emit signalQuantizeFinished();
