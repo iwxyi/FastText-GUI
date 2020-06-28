@@ -238,9 +238,7 @@ public:
 
         std::istream& in = inputIsStdIn ? std::cin : ifs;
         std::vector<std::pair<real, std::string>> predictions;
-        std::cout << "startPredict" << std::endl;
         while (fasttext.predictLine(in, predictions, k, threshold)) {
-            std::cout << "predictLine" << std::endl;
             printPredictions(predictions, printProb, false);
         }
         if (ifs.is_open()) {

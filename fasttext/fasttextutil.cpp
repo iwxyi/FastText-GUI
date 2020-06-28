@@ -13,15 +13,26 @@ FastTextUtil::FastTextUtil(QObject *parent) : QObject(parent)
 void FastTextUtil::train(QString txt, QString model)
 {
     txt = convertTxtFile(txt);
-    FastTextCmd::exec("fasttext supervised -input "+txt+" -output "+model);
+    QtConcurrent::run([=]{
+        FastTextCmd::exec("fasttext supervised -input "+txt+" -output "+model);
+        emit signalFinished();
+    });
 }
 
 QString FastTextUtil::predict(QString txt, QString model)
 {
-    auto list = predict(txt, model, 1);
-    if (list.size() == 0)
-        return "";
-    return list.first();
+    txt = convertTxtFile(txt);
+    if (!model.endsWith(".bin"))
+        model += ".bin";
+    QtConcurrent::run([=]{
+        FastTextCmd::exec("fasttext predic "+model+" "+txt);
+        // TODO: 想办法获取输出
+        QStringList list;
+        if (list.size() == 0)
+            emit signalPredict("");
+        else
+            emit signalPredict(list.first());
+    });
 }
 
 /**
@@ -31,12 +42,17 @@ QString FastTextUtil::predict(QString txt, QString model)
  * @param k    标签个数（默认为1）
  * @return
  */
-QStringList FastTextUtil::predict(QString txt, QString model, int k)
+void FastTextUtil::predict(QString txt, QString model, int k)
 {
     txt = convertTxtFile(txt);
     if (!model.endsWith(".bin"))
         model += ".bin";
-    FastTextCmd::exec("fasttext predic "+model+" "+txt+" "+QString::number(k));
+    QtConcurrent::run([=]{
+        FastTextCmd::exec("fasttext predic "+model+" "+txt+" "+QString::number(k));
+        // TODO: 想办法获取输出
+        QStringList list;
+        emit signalPredict(list);
+    });
 }
 
 /**

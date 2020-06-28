@@ -20,7 +20,7 @@ public:
 
     void train(QString txt, QString model);
     QString predict(QString txt, QString model);
-    QStringList predict(QString txt, QString model, int k);
+    void predict(QString txt, QString model, int k);
 
 private:
     QString convertTxtFile(QString txt);
