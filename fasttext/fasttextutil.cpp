@@ -2,7 +2,7 @@
 
 FastTextUtil::FastTextUtil(QObject *parent) : QObject(parent)
 {
-
+    qRegisterMetaType<QList<QStringList>>("QList<QStringList>");
 }
 
 /**
@@ -41,8 +41,8 @@ void FastTextUtil::predictOne(QString txt, QString model)
 }
 
 /**
- * @brief 获取分类结果
- * @param txt  输入的txt文件路径，或者字符串
+ * @brief 获取一个数据的分类结果
+ * @param txt  输入的txt文件路径，或者字符串（如果有多条，则只取一条）
  * @param mode 使用的模型
  * @param k    标签个数（默认为1）
  * @return
@@ -55,7 +55,7 @@ void FastTextUtil::predictOne(QString txt, QString model, int k)
     QtConcurrent::run([=]{
         std::vector<std::vector<std::pair<real, std::string>>> results =
                 FastTextIf::predict(std::vector<std::string>{
-                                "fasttext", "predict", "model", "txt", std::to_string(k)
+                                "fasttext", "predict", model.toStdString(), txt.toStdString(), std::to_string(k)
                             });
         QStringList list;
         foreach (auto r, results.front()) // 只遍历第一行
@@ -66,6 +66,58 @@ void FastTextUtil::predictOne(QString txt, QString model, int k)
             list << s;
         }
         emit signalPredictsOneFinished(list);
+    });
+}
+
+void FastTextUtil::predict(QString txt, QString model)
+{
+    txt = convertTxtFile(txt);
+    if (!model.endsWith(".bin"))
+        model += ".bin";
+    QtConcurrent::run([=]{
+        std::vector<std::vector<std::pair<real, std::string>>> results =
+                FastTextIf::predict(std::vector<std::string>{
+                                "fasttext", "predict", model.toStdString(), txt.toStdString()
+                            });
+        QStringList list;
+        foreach (auto result, results)
+        {
+            if (result.size() > 0)
+            {
+                QString s = QString::fromStdString(result.front().second);
+                if (s.startsWith("__label__"))
+                    s = s.right(s.length()-9);
+                list << s;
+            }
+        }
+        emit signalPredictFinished(list);
+    });
+}
+
+void FastTextUtil::predict(QString txt, QString model, int k)
+{
+    txt = convertTxtFile(txt);
+    if (!model.endsWith(".bin"))
+        model += ".bin";
+    QtConcurrent::run([=]{
+        std::vector<std::vector<std::pair<real, std::string>>> results =
+                FastTextIf::predict(std::vector<std::string>{
+                                "fasttext", "predict", model.toStdString(), txt.toStdString(), std::to_string(k)
+                            });
+        QList<QStringList> lists;
+        foreach (auto result, results)
+        {
+            QStringList list;
+            foreach (auto r, result) // 只遍历第一行
+            {
+                QString s = QString::fromStdString(r.second);
+                if (s.startsWith("__label__"))
+                    s = s.right(s.length()-9);
+                list << s;
+            }
+            lists << list;
+        }
+        emit signalPredictsFinished(lists);
     });
 }
 
@@ -89,11 +141,11 @@ void FastTextUtil::quantize(QString model)
  */
 QString FastTextUtil::convertTxtFile(QString txt)
 {
-    if (!txt.endsWith(".txt"))
+    if (!txt.endsWith(".txt") || txt.contains("\n"))
     {
         // TODO: 写入到文件
         QString name = "input_txt_temp.txt";
-
+        writeTextFile(name, txt);
         return name;
     }
     // 带有空格的路径，需要包裹双引号
@@ -102,4 +154,21 @@ QString FastTextUtil::convertTxtFile(QString txt)
         txt = "\"" + txt + "\"";
     }
     return txt;
+}
+
+bool FastTextUtil::writeTextFile(QString path, QString text)
+{
+    return writeTextFile(path, text, QTextCodec::codecForName(QByteArray("utf-8")));
+}
+
+bool FastTextUtil::writeTextFile(QString path, QString text, QTextCodec *codec)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return false;
+    QTextStream text_stream(&file);
+    text_stream.setCodec(codec);
+    text_stream << text;
+    file.close();
+    return true;
 }

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QStringList>
 #include <QtConcurrent/QtConcurrent>
+#include <QMetaType>
 #include "fasttext_cmd.h"
 
 /**
@@ -21,15 +22,21 @@ public:
     void train(QString txt, QString model);
     void predictOne(QString txt, QString model);
     void predictOne(QString txt, QString model, int k);
+    void predict(QString txt, QString model);
+    void predict(QString txt, QString model, int k);
     void quantize(QString model);
 
 private:
     QString convertTxtFile(QString txt);
+    static bool writeTextFile(QString path, QString text);
+    static bool writeTextFile(QString path, QString text, QTextCodec *codec);
 
 signals:
     void signalTrainFinished();
     void signalPredictOneFinished(QString label);
     void signalPredictsOneFinished(QStringList labels);
+    void signalPredictFinished(QStringList labels);
+    void signalPredictsFinished(QList<QStringList> labelss);
     void signalQuantizeFinished();
 
 public slots:
