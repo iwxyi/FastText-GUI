@@ -1,5 +1,5 @@
-#ifndef FASTTEXTUTIL_H
-#define FASTTEXTUTIL_H
+#ifndef FASTTEXTIF_H
+#define FASTTEXTIF_H
 
 #include <iomanip>
 #include <iostream>
@@ -16,7 +16,7 @@ using namespace fasttext;
 /**
  * 与 FastTextMain 相比，把绝大部分 std::cin 改成了 ifstream，参数里多传入一个文件路径即可
  */
-class FastTextUtil
+class FastTextIf
 {
 public:
     static void printUsage() {
@@ -506,4 +506,4 @@ public:
     }
 };
 
-#endif // FASTTEXTUTIL_H
+#endif // FASTTEXTIF_H

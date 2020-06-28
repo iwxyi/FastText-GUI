@@ -19,6 +19,7 @@ INCLUDEPATH += \
     fasttext/
 
 SOURCES += \
+    fasttext/fasttextutil.cpp \
     main.cpp \
     mainwindow.cpp \
     fasttext/args.cc \
@@ -36,6 +37,8 @@ SOURCES += \
     fasttext/vector.cc
 
 HEADERS += \
+    fasttext/fasttext_if.h \
+    fasttext/fasttextutil.h \
     mainwindow.h \
     fasttext/args.h \
     fasttext/autotune.h \
@@ -44,7 +47,6 @@ HEADERS += \
     fasttext/fasttext.h \
     fasttext/fasttext_cmd.h \
     fasttext/fasttext_main.h \
-    fasttext/fasttext_util.h \
     fasttext/loss.h \
     fasttext/matrix.h \
     fasttext/meter.h \

@@ -3,7 +3,7 @@
 
 #include <QString>
 #include "fasttext_main.h"
-#include "fasttext_util.h"
+#include "fasttext_if.h"
 
 /**
  * 传入的字符串转 cmd 命令
@@ -73,7 +73,7 @@ public:
     {
         std::vector<std::string> args;
         QString2Argv(cmd, &args);
-        FastTextUtil::entrance(args);
+        FastTextIf::entrance(args);
     }
 };
 
