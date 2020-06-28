@@ -206,10 +206,11 @@ public:
         }
     }
 
-    static void predict(const std::vector<std::string>& args) {
+    static std::vector<std::vector<std::pair<real, std::string>>> predict(const std::vector<std::string>& args) {
+        std::vector<std::vector<std::pair<real, std::string>>> results;
         if (args.size() < 4 || args.size() > 6) {
             printPredictUsage();
-            return ;
+            return results;
         }
 
         int32_t k = 1;
@@ -232,20 +233,21 @@ public:
             ifs.open(infile);
             if (!inputIsStdIn && !ifs.is_open()) {
                 std::cerr << "Input file cannot be opened!" << std::endl;
-                return ;
+                return results;
             }
         }
 
         std::istream& in = inputIsStdIn ? std::cin : ifs;
         std::vector<std::pair<real, std::string>> predictions;
         while (fasttext.predictLine(in, predictions, k, threshold)) {
+            results.push_back(predictions);
             printPredictions(predictions, printProb, false);
         }
         if (ifs.is_open()) {
             ifs.close();
         }
 
-        return ;
+        return results;
     }
 
     static void printWordVectors(const std::vector<std::string> args) {

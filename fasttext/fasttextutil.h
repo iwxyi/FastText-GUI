@@ -19,16 +19,18 @@ public:
     FastTextUtil(QObject *parent = nullptr);
 
     void train(QString txt, QString model);
-    QString predict(QString txt, QString model);
-    void predict(QString txt, QString model, int k);
+    void predictOne(QString txt, QString model);
+    void predictOne(QString txt, QString model, int k);
+    void quantize(QString model);
 
 private:
     QString convertTxtFile(QString txt);
 
 signals:
-    void signalFinished();
-    void signalPredict(QString label);
-    void signalPredict(QStringList labels);
+    void signalTrainFinished();
+    void signalPredictOneFinished(QString label);
+    void signalPredictsOneFinished(QStringList labels);
+    void signalQuantizeFinished();
 
 public slots:
 

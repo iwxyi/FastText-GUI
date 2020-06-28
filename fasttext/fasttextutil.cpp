@@ -15,23 +15,28 @@ void FastTextUtil::train(QString txt, QString model)
     txt = convertTxtFile(txt);
     QtConcurrent::run([=]{
         FastTextCmd::exec("fasttext supervised -input "+txt+" -output "+model);
-        emit signalFinished();
+        emit signalTrainFinished();
     });
 }
 
-QString FastTextUtil::predict(QString txt, QString model)
+void FastTextUtil::predictOne(QString txt, QString model)
 {
     txt = convertTxtFile(txt);
     if (!model.endsWith(".bin"))
         model += ".bin";
     QtConcurrent::run([=]{
-        FastTextCmd::exec("fasttext predic "+model+" "+txt);
-        // TODO: 想办法获取输出
-        QStringList list;
-        if (list.size() == 0)
-            emit signalPredict("");
-        else
-            emit signalPredict(list.first());
+        std::vector<std::vector<std::pair<real, std::string>>> results =
+                FastTextIf::predict(std::vector<std::string>{
+                                "fasttext", "predict", model.toStdString(), txt.toStdString()
+                            });
+        QString rst;
+        if (results.size() > 0 && results.front().size() > 0)
+        {
+            rst = QString::fromStdString(results.front().front().second);
+            if (rst.startsWith("__label__"))
+                rst = rst.right(rst.length()-9);
+        }
+        emit signalPredictOneFinished(rst);
     });
 }
 
@@ -42,16 +47,42 @@ QString FastTextUtil::predict(QString txt, QString model)
  * @param k    标签个数（默认为1）
  * @return
  */
-void FastTextUtil::predict(QString txt, QString model, int k)
+void FastTextUtil::predictOne(QString txt, QString model, int k)
 {
     txt = convertTxtFile(txt);
     if (!model.endsWith(".bin"))
         model += ".bin";
     QtConcurrent::run([=]{
-        FastTextCmd::exec("fasttext predic "+model+" "+txt+" "+QString::number(k));
-        // TODO: 想办法获取输出
+        std::vector<std::vector<std::pair<real, std::string>>> results =
+                FastTextIf::predict(std::vector<std::string>{
+                                "fasttext", "predict", "model", "txt", std::to_string(k)
+                            });
         QStringList list;
-        emit signalPredict(list);
+        foreach (auto r, results.front()) // 只遍历第一行
+        {
+            QString s = QString::fromStdString(r.second);
+            if (s.startsWith("__label__"))
+                s = s.right(s.length()-9);
+            list << s;
+        }
+        emit signalPredictsOneFinished(list);
+    });
+}
+
+/**
+ * @brief 量化模型，减少体积
+ * @param model 模型文件名（输入输出同名）
+ */
+void FastTextUtil::quantize(QString model)
+{
+    if (!model.endsWith(".bin"))
+        model += ".bin";
+    QtConcurrent::run([=]{
+        std::vector<std::vector<std::pair<real, std::string>>> results =
+                FastTextIf::predict(std::vector<std::string>{
+                                "fasttext", "quantize", "-output", model.toStdString(), "-input", "x"
+                            });
+        emit signalQuantizeFinished();
     });
 }
 

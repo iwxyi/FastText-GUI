@@ -25,10 +25,18 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-
+    FastTextUtil* ft = new FastTextUtil(this);
+    connect(ft, &FastTextUtil::signalTrainFinished, this, [=]{
+        qDebug() << "模型训练结束";
+    });
+    ft->train("train.txt", "model");
 }
 
 void MainWindow::on_pushButton_3_clicked()
 {
-
+    FastTextUtil* ft = new FastTextUtil(this);
+    connect(ft, &FastTextUtil::signalPredictOneFinished, this, [=](QString result){
+        qDebug() << "预测结束，结果:" << result;
+    });
+    ft->predictOne("text.txt", "model");
 }
