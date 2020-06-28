@@ -5,6 +5,10 @@
 #include "fasttext_main.h"
 #include "fasttext_util.h"
 
+/**
+ * 传入的字符串转 cmd 命令
+ * 间接调用 FastTextUtil
+ */
 class FastTextCmd
 {
 public:

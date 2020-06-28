@@ -16,44 +16,44 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 INCLUDEPATH += \
-    src/
+    fasttext/
 
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    src/args.cc \
-    src/autotune.cc \
-    src/densematrix.cc \
-    src/dictionary.cc \
-    src/fasttext.cc \
-    src/loss.cc \
-    src/matrix.cc \
-    src/meter.cc \
-    src/model.cc \
-    src/productquantizer.cc \
-    src/quantmatrix.cc \
-    src/utils.cc \
-    src/vector.cc
+    fasttext/args.cc \
+    fasttext/autotune.cc \
+    fasttext/densematrix.cc \
+    fasttext/dictionary.cc \
+    fasttext/fasttext.cc \
+    fasttext/loss.cc \
+    fasttext/matrix.cc \
+    fasttext/meter.cc \
+    fasttext/model.cc \
+    fasttext/productquantizer.cc \
+    fasttext/quantmatrix.cc \
+    fasttext/utils.cc \
+    fasttext/vector.cc
 
 HEADERS += \
     mainwindow.h \
-    src/args.h \
-    src/autotune.h \
-    src/densematrix.h \
-    src/dictionary.h \
-    src/fasttext.h \
-    src/fasttext_cmd.h \
-    src/fasttext_main.h \
-    src/fasttext_util.h \
-    src/loss.h \
-    src/matrix.h \
-    src/meter.h \
-    src/model.h \
-    src/productquantizer.h \
-    src/quantmatrix.h \
-    src/real.h \
-    src/utils.h \
-    src/vector.h
+    fasttext/args.h \
+    fasttext/autotune.h \
+    fasttext/densematrix.h \
+    fasttext/dictionary.h \
+    fasttext/fasttext.h \
+    fasttext/fasttext_cmd.h \
+    fasttext/fasttext_main.h \
+    fasttext/fasttext_util.h \
+    fasttext/loss.h \
+    fasttext/matrix.h \
+    fasttext/meter.h \
+    fasttext/model.h \
+    fasttext/productquantizer.h \
+    fasttext/quantmatrix.h \
+    fasttext/real.h \
+    fasttext/utils.h \
+    fasttext/vector.h
 
 FORMS += \
     mainwindow.ui
@@ -62,3 +62,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES += \
+    README.md
