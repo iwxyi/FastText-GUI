@@ -23,6 +23,8 @@ void MainWindow::on_pushButton_clicked()
     FastTextCmd::exec(ui->lineEdit->text().trimmed());
 }
 
+//------------------------------------------------------------
+
 void MainWindow::on_pushButton_2_clicked()
 {
     FastTextUtil* ft = new FastTextUtil(this);
@@ -66,4 +68,28 @@ void MainWindow::on_pushButton_6_clicked()
         qDebug() << "预测结束，结果:" << result;
     });
     ft->predict("text.txt", "model");
+}
+
+//---------------------------------------------------------
+
+void MainWindow::on_pushButton_7_clicked()
+{
+    fastTextObject.loadModel("model.bin", [=]{
+        qDebug() << "模型加载完毕";
+    });
+}
+
+void MainWindow::on_pushButton_8_clicked()
+{
+    fastTextObject.train("train.txt", "model");
+}
+
+void MainWindow::on_pushButton_9_clicked()
+{
+    fastTextObject.predictLine(ui->lineEdit_3->text(), 3, [=](PredictResult result){
+        if (result.size() > 0)
+            qDebug() << "预测结果：" << QString::fromStdString(result[0].second);
+        else
+            qDebug() << "预测结果为空";
+    });
 }

@@ -5,6 +5,7 @@
 #include <QDebug>
 #include "fasttext_cmd.h"
 #include "fasttextutil.h"
+#include"fasttextobject.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -35,7 +36,15 @@ private slots:
 
     void on_pushButton_6_clicked();
 
+    void on_pushButton_7_clicked();
+
+    void on_pushButton_8_clicked();
+
+    void on_pushButton_9_clicked();
+
 private:
     Ui::MainWindow *ui;
+
+    FastTextObject fastTextObject;
 };
 #endif // MAINWINDOW_H
