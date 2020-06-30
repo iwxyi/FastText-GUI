@@ -130,7 +130,7 @@ void FastTextUtil::quantize(QString model)
 {
     QtConcurrent::run([=]{
         FastTextIf::quantize(std::vector<std::string>{
-                                "fasttext", "quantize", "-output", model.toStdString(), "-input", "x"
+                                "fasttext", "quantize", "-output", model.toStdString(), "-input", model.toStdString()
                             });
         emit signalQuantizeFinished();
     });

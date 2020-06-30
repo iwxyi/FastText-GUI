@@ -13,7 +13,7 @@ FastTextObject::FastTextObject(QObject *parent) : QObject(parent)
     qRegisterMetaType<ResultCallback>("ResultCallback");
     qRegisterMetaType<PredictLineCallback>("PredictLineCallback");
 
-    QDir dir(fasttext_dir);
+    QDir dir;
     dir.mkpath(fasttext_dir);
 
     // 多线程结束后直接运行传进来的 lambda 会导致崩溃，需要使用信号槽的方式
@@ -27,6 +27,9 @@ FastTextObject::FastTextObject(QObject *parent) : QObject(parent)
     });
 }
 
+/**
+ * 加载模型
+ */
 void FastTextObject::loadModel(std::string name, ResultCallback callback)
 {
     this->model_name = name;
@@ -38,15 +41,43 @@ void FastTextObject::loadModel(std::string name, ResultCallback callback)
     });
 }
 
+/**
+ * 训练模型
+ * 建议训练后的 callback 中重新加载
+ */
 void FastTextObject::train(std::string file, std::string model, ResultCallback callback)
 {
     if (model == "")
         model = this->model_name;
     if (model == "")
         return ;
-    QtConcurrent::run([&]{
+    loading = true;
+    QtConcurrent::run([=]{
+        // Args 有点难提取，干脆继续这个形式了
+        train(std::vector<std::string>{"fasttext", "supervised", "-input", file, "-output", model});
+        loading = false;
+        emit signalRunResultCallback(callback);
+    });
+}
 
+void FastTextObject::quantize(ResultCallback callback)
+{
+    if (loading)
+    {
+        qDebug() << "loading model";
+        return ;
+    }
 
+    std::string name = model_name;
+    if (name.find(".bin") > 0)
+        name = name.substr(0, name.length()-4);
+    std::vector<std::string> args{"fasttext", "quantize", "-output", name, "-input", name};
+
+    QtConcurrent::run([=]{
+        Args a = Args();
+        fastText.quantize(a);
+        fastText.saveModel(name + ".ftz");
+        emit signalRunResultCallback(callback);
     });
 }
 
@@ -58,7 +89,10 @@ void FastTextObject::train(std::string file, std::string model, ResultCallback c
 void FastTextObject::predictLine(QString text, int k, PredictLineCallback callback)
 {
     if (loading)
+    {
+        qDebug() << "loading model";
         return ;
+    }
     std::string path = convert2TxtFile(text).toStdString();
     QtConcurrent::run([=]{
         std::ifstream ifs;
@@ -75,10 +109,45 @@ void FastTextObject::predictLine(QString text, int k, PredictLineCallback callba
         PredictResult predictions;
         fastText.predictLine(in, predictions, k, threshold);
         ifs.close();
-//        QFile(QString::fromStdString(path)).remove(); // 删除临时文件
+        QFile(QString::fromStdString(path)).remove(); // 删除临时文件
 
         emit signalRunPredictLineCallback(callback, predictions);
     });
+}
+
+/**
+ * 调用 fastText 内部的 API
+ */
+void FastTextObject::train(const std::vector<std::string> args) const
+{
+    Args a = Args();
+    a.parseArgs(args);
+    std::shared_ptr<FastText> fasttext = std::make_shared<FastText>();
+    std::string outputFileName;
+
+    if (a.hasAutotune() &&
+            a.getAutotuneModelSize() != Args::kUnlimitedModelSize) {
+        outputFileName = a.output + ".ftz";
+    } else {
+        outputFileName = a.output + ".bin";
+    }
+    std::ofstream ofs(outputFileName);
+    if (!ofs.is_open()) {
+        throw std::invalid_argument(
+                    outputFileName + " cannot be opened for saving.");
+    }
+    ofs.close();
+    if (a.hasAutotune()) {
+        Autotune autotune(fasttext);
+        autotune.train(a);
+    } else {
+        fasttext->train(a);
+    }
+    fasttext->saveModel(outputFileName);
+    fasttext->saveVectors(a.output + ".vec");
+    if (a.saveOutput) {
+        fasttext->saveOutput(a.output + ".output");
+    }
 }
 
 /**

@@ -81,7 +81,11 @@ void MainWindow::on_pushButton_7_clicked()
 
 void MainWindow::on_pushButton_8_clicked()
 {
-    fastTextObject.train("train.txt", "model");
+    fastTextObject.train("train.txt", "model", [=]{
+        qDebug() << "模型训练结束";
+        fastTextObject.loadModel("model.bin");
+        qDebug() << "重新加载完成";
+    });
 }
 
 void MainWindow::on_pushButton_9_clicked()
@@ -91,5 +95,12 @@ void MainWindow::on_pushButton_9_clicked()
             qDebug() << "预测结果：" << QString::fromStdString(result[0].second);
         else
             qDebug() << "预测结果为空";
+    });
+}
+
+void MainWindow::on_pushButton_10_clicked()
+{
+    fastTextObject.quantize([=]{
+        qDebug() << "模型量化结束";
     });
 }

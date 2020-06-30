@@ -9,6 +9,10 @@
 #include <QMetaType>
 #include "fasttext_main.h"
 
+const QString FASTTEXT_MODEL_DIR = "model/";
+const QString FASTTEXT_TEMP_DIR = "predict/";
+const QString FASTTEXT_TRAIN_DIR = "train/";
+
 typedef std::vector<std::pair<real, std::string>> PredictResult;
 typedef std::function<void()> ResultCallback;
 typedef std::function<void(std::vector<std::pair<real, std::string>>)> PredictLineCallback;
@@ -29,7 +33,12 @@ public:
 
     void train(std::string file, std::string model = "", ResultCallback callback = nullptr);
 
+    void quantize(ResultCallback callback = nullptr);
+
     void predictLine(QString text, int k, PredictLineCallback callback);
+
+protected:
+    void train(const std::vector<std::string> args) const;
 
 private:
     QString convert2TxtFile(QString txt);
@@ -43,7 +52,7 @@ signals:
 public slots:
 
 public:
-    static QString fasttext_dir;
+    static QString fasttext_dir; // 文件目录：运行路径/predict/
 
 private:
     bool loading = true;
