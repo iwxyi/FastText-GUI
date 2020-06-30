@@ -30,11 +30,8 @@ public:
     FastTextObject(QObject *parent = nullptr);
 
     void loadModel(std::string name, ResultCallback callback = nullptr);
-
     void train(std::string file, std::string model = "", ResultCallback callback = nullptr);
-
     void quantize(ResultCallback callback = nullptr);
-
     void predictLine(QString text, int k, PredictLineCallback callback);
 
 protected:
@@ -48,8 +45,6 @@ private:
 signals:
     void signalRunResultCallback(ResultCallback func);
     void signalRunPredictLineCallback(PredictLineCallback func, PredictResult rst);
-
-public slots:
 
 public:
     static QString fasttext_dir; // 文件目录：运行路径/predict/

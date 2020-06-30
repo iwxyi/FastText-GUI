@@ -1,5 +1,5 @@
-#ifndef FASTTEXTUTIL_H
-#define FASTTEXTUTIL_H
+#ifndef FASTTEXTSTATIC_H
+#define FASTTEXTSTATIC_H
 
 #include <QObject>
 #include <QStringList>
@@ -38,11 +38,6 @@ signals:
     void signalPredictFinished(QStringList labels);
     void signalPredictsFinished(QList<QStringList> labelss);
     void signalQuantizeFinished();
-
-public slots:
-
-private:
-
 };
 
-#endif // FASTTEXTUTIL_H
+#endif // FASTTEXTSTATIC_H

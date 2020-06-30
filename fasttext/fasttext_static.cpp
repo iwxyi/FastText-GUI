@@ -1,4 +1,4 @@
-#include "fasttextutil.h"
+#include "fasttext_static.h"
 
 FastTextUtil::FastTextUtil(QObject *parent) : QObject(parent)
 {
