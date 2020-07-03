@@ -9,7 +9,7 @@
 #include <QMetaType>
 #include "fasttext_main.h"
 
-const QString FASTTEXT_MODEL_DIR = "model/";
+const QString FASTTEXT_MODEL_DIR = "models/";
 const QString FASTTEXT_TEMP_DIR = "predict/";
 const QString FASTTEXT_TRAIN_DIR = "train/";
 
@@ -26,13 +26,24 @@ class FastTextObject : public QObject
 {
     Q_OBJECT
 public:
-    FastTextObject(std::string model, QObject *parent = nullptr);
+    FastTextObject(QString model, QObject *parent = nullptr);
     FastTextObject(QObject *parent = nullptr);
 
-    void loadModel(std::string name, ResultCallback callback = nullptr);
-    void train(std::string file, std::string model = "", ResultCallback callback = nullptr);
+    bool isValid();
+    FastText *getCore();
+
+    void loadModel(QString name, ResultCallback callback = nullptr);
+    void train(QString file, QString model = "", ResultCallback callback = nullptr);
     void quantize(ResultCallback callback = nullptr);
-    void predictLine(QString text, int k, PredictLineCallback callback);
+    void predictLine(QString text, int k, PredictLineCallback callback = nullptr);
+    PredictResult predictLineSync(QString text, int k = 1);
+    QString predictOneSync(QString text);
+    fasttext::Vector getSentenceVector(QString sent);
+
+    QString getFirst(const PredictResult &result) const;
+
+    static QList<float> string2Vector(QString text);
+    static double calcVectorSimilar(QList<float> l1, QList<float> l2);
 
 protected:
     void train(const std::vector<std::string> args) const;
@@ -51,7 +62,7 @@ public:
 
 private:
     bool loading = true;
-    std::string model_name; // 不包含后缀名
+    QString model_name; // 不包含后缀名
     FastText fastText;
 };
 

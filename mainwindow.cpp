@@ -104,3 +104,20 @@ void MainWindow::on_pushButton_10_clicked()
         qDebug() << "模型量化结束";
     });
 }
+
+void MainWindow::on_pushButton_11_clicked()
+{
+    auto v = fastTextObject.getSentenceVector(ui->lineEdit_3->text());
+    QList<float> out;
+    for (int i = 0; i < v.size(); i++)
+        out << v[i];
+    qDebug() << out;
+}
+
+void MainWindow::on_pushButton_12_clicked()
+{
+    QString text1 = ui->lineEdit_4->text().trimmed();
+    QString text2 = ui->lineEdit_5->text().trimmed();
+
+    qDebug() << fastTextObject.calcVectorSimilar(FastTextObject::string2Vector(text1), FastTextObject::string2Vector(text2));
+}
