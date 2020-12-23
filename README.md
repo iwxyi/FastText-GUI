@@ -15,6 +15,8 @@ Qt-fastText
 chcp 65001
 ```
 
+> 注意：如果是Windows且包含**中文路径**（应用、模型等），务必将各处 `toStdString()` 改为 `toLocal8Bit().data()`
+
 ---
 
 ## 单词表示学习
